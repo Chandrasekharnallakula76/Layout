@@ -1,7 +1,19 @@
-import type { ReactNode } from "react"
-import { Moon, Sun } from "lucide-react"
+import { type FormEvent, type ReactNode, useEffect, useState } from "react"
+import { GitBranch, Moon, Plus, Sun } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { useTheme } from "@/components/theme-provider"
 
 type NavbarProps = {
@@ -13,38 +25,139 @@ type NavbarProps = {
 export function Navbar({ title, leadingContent }: NavbarProps) {
   const { theme, setTheme } = useTheme()
   const isDarkMode = theme === "dark"
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [workflowName, setWorkflowName] = useState("")
+  const [workflowDescription, setWorkflowDescription] = useState("")
+
+  useEffect(() => {
+    if (!isCreateDialogOpen) {
+      setWorkflowName("")
+      setWorkflowDescription("")
+    }
+  }, [isCreateDialogOpen])
 
   const handleThemeToggle = () => {
     setTheme(isDarkMode ? "light" : "dark")
   }
 
+  const handleCreateWorkflow = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const trimmedWorkflowName = workflowName.trim()
+    const trimmedWorkflowDescription = workflowDescription.trim()
+
+    if (!trimmedWorkflowName) {
+      return
+    }
+
+    setIsCreateDialogOpen(false)
+    navigate("/workflow/new", {
+      state: {
+        workflowName: trimmedWorkflowName,
+        workflowDescription: trimmedWorkflowDescription,
+      },
+    })
+  }
+
   return (
-    <header className="sticky top-0 z-10 w-full border-b border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+    <>
+      <header className="sticky top-0 z-10 w-full border-b border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="flex h-15 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           {leadingContent}
-          <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-600 via-blue-600 to-cyan-400 text-sm font-bold tracking-wide text-white shadow-md shadow-fuchsia-500/20">
+
+          <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-600 via-blue-600 to-cyan-400 text-xs font-bold tracking-wide text-white shadow-md shadow-fuchsia-500/20">
             DW
           </div>
-          <div className="flex flex-col justify-center">
-            <p className="bg-primary rounded-md px-3 py-1.5 text-base font-semibold tracking-tight text-primary-foreground shadow-sm">
+
+          <div className="hidden min-w-0 sm:block">
+            <p className="truncate text-sm font-semibold text-foreground">
               {title}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {location.pathname === "/workflow/new"
+                ? "Create a new workflow"
+                : "Build and manage your workflow space"}
             </p>
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          size="icon-sm"
-          onClick={handleThemeToggle}
-          aria-label={
-            isDarkMode ? "Switch to light mode" : "Switch to dark mode"
-          }
-          title={isDarkMode ? "Light mode" : "Dark mode"}
-        >
-          {isDarkMode ? <Sun /> : <Moon />}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            className="h-10 rounded-[12px] border-violet-200/80 bg-white px-4 text-violet-700 shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:bg-violet-50 hover:text-violet-800 dark:border-violet-400/20 dark:bg-white/10 dark:text-violet-100 dark:hover:bg-white/15"
+            onClick={() => setIsCreateDialogOpen(true)}
+          >
+            <Plus className="size-4" />
+            <span>Create</span>
+            <GitBranch className="size-4 opacity-70" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleThemeToggle}
+            aria-label={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+            title={isDarkMode ? "Light mode" : "Dark mode"}
+            className="size-10 rounded-[12px] border-violet-200/80 bg-white text-violet-700 shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:bg-violet-50 hover:text-violet-800 dark:border-violet-400/20 dark:bg-white/10 dark:text-violet-100 dark:hover:bg-white/15"
+          >
+            {isDarkMode ? <Sun /> : <Moon />}
+          </Button>
+        </div>
       </div>
-    </header>
+      </header>
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create workflow</DialogTitle>
+            <DialogDescription>
+              Enter a workflow name and description before opening the builder.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4" onSubmit={handleCreateWorkflow}>
+            <div className="space-y-2">
+              <Label htmlFor="workflow-name">Workflow name</Label>
+              <Input
+                id="workflow-name"
+                value={workflowName}
+                onChange={(event) => setWorkflowName(event.target.value)}
+                placeholder="Enter workflow name"
+                autoFocus
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="workflow-description">Description</Label>
+              <Textarea
+                id="workflow-description"
+                value={workflowDescription}
+                onChange={(event) => setWorkflowDescription(event.target.value)}
+                placeholder="Enter workflow description"
+                rows={4}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!workflowName.trim()}>
+                Create
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

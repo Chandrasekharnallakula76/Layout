@@ -5,6 +5,7 @@ import { Navbar } from "@/components/navbar"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { ComponentsPage } from "@/pages/components-page"
 import { DashboardPage } from "@/pages/dashboard-page"
+import { WorkflowBuilderPage } from "@/pages/workflow-builder-page"
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/components" element={<ComponentsPage />} />
+            <Route path="/workflow/new" element={<WorkflowBuilderPage />} />
           </Routes>
         </div>
       </SidebarInset>
