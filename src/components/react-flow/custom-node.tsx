@@ -2,8 +2,8 @@ import { Handle, Position, useNodeId, useStore, type Edge, type NodeProps } from
 
 type WorkflowNodeData = {
   label: string
-  detail: string
-  badge: string
+  detail?: string
+  badge?: string
 }
 
 const handleBaseClassName =
@@ -46,12 +46,15 @@ export function CustomNode({ data, selected }: NodeProps<WorkflowNodeData>) {
 
   const isHandleVisible = (handleId: string) => visibleHandles.includes(handleId)
 
+  const badgeLabel = data.badge?.trim() || "Agent"
+  const detailText = data.detail?.trim()
+
   return (
     <div
-      className={`group min-w-52 rounded-2xl border bg-card p-4 shadow-sm transition-all ${
+      className={`group min-w-[200px] rounded-[18px] border bg-card px-3.5 py-3 shadow-sm transition-all ${
         selected
           ? "border-primary ring-4 ring-primary/15"
-          : "border-border/70 hover:border-primary/40"
+          : "border-border/70 hover:border-primary/35"
       }`}
     >
       <Handle
@@ -79,13 +82,17 @@ export function CustomNode({ data, selected }: NodeProps<WorkflowNodeData>) {
         className={`${handleBaseClassName} ${isHandleVisible("left") ? "!opacity-100" : ""}`}
       />
 
-      <div className="mb-3 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[0.72rem] font-semibold tracking-[0.12em] text-primary uppercase">
-        {data.badge}
+      <div className="mb-2 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-[0.14em] text-primary uppercase">
+        {badgeLabel}
       </div>
-      <h3 className="text-sm font-semibold text-foreground">{data.label}</h3>
-      <p className="mt-1 text-xs leading-5 text-muted-foreground">
-        {data.detail}
-      </p>
+      <h3 className="text-[13px] font-semibold leading-tight text-foreground">
+        {data.label}
+      </h3>
+      {detailText ? (
+        <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+          {detailText}
+        </p>
+      ) : null}
     </div>
   )
 }

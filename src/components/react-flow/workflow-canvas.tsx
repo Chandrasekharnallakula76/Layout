@@ -32,6 +32,10 @@ const initialNodes: Node<WorkflowNodeData>[] = []
 const initialEdges: Edge[] = []
 const builderPanelHeightClass = "min-h-[520px] xl:h-[calc(100vh-14.5rem)]"
 
+function formatNodeBadge(label: string) {
+  return label.replace(/\s+Agent$/i, "")
+}
+
 type WorkflowCanvasProps = {
   workflowName: string
   workflowDescription: string
@@ -76,8 +80,8 @@ function WorkflowCanvasInner({
         position: position ?? fallbackPosition,
         data: {
           label: `${item.label} ${nextIndex}`,
-          detail: item.detail,
-          badge: item.badge,
+          detail: "",
+          badge: formatNodeBadge(item.label),
         },
       }
 
@@ -105,10 +109,9 @@ function WorkflowCanvasInner({
 
       const item = JSON.parse(rawNode) as AgentPaletteItem
 
-      const bounds = reactFlowWrapper.current.getBoundingClientRect()
       const position = reactFlowInstance.current.screenToFlowPosition({
-        x: event.clientX - bounds.left,
-        y: event.clientY - bounds.top,
+        x: event.clientX,
+        y: event.clientY,
       })
 
       createNode(item, position)

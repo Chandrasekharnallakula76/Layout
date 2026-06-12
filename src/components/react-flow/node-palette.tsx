@@ -41,8 +41,8 @@ type NodePaletteProps = {
 }
 
 export function NodePalette({
-  workflowName,
-  workflowDescription,
+  workflowName: _workflowName,
+  workflowDescription: _workflowDescription,
   panelHeightClass,
 }: NodePaletteProps) {
   const handleDragStart = (
